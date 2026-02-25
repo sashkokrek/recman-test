@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { StoreProvider } from '@/store/StoreProvider';
 
-function App() {
-  const [count, setCount] = useState(0);
-
-  return <>Todo App</>;
+export function App() {
+  return (
+    <StoreProvider>
+      <div className="min-h-screen bg-[--color-board-bg]">
+        <main>TODO APP</main>
+      </div>
+    </StoreProvider>
+  );
 }
-
-export default App;
