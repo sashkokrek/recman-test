@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
@@ -16,7 +17,7 @@ interface DropdownProps {
 
 const dropdownRootStyles = cva('relative');
 const dropdownMenuStyles = cva(
-  'absolute right-0 z-50 mt-1 min-w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg'
+  'fixed z-50 min-w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg'
 );
 const dropdownOptionStyles = cva(
   'w-full px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50'
@@ -25,11 +26,22 @@ const dropdownOptionStyles = cva(
 /**
  * Select
  * Closes on outside click or Escape key.
+ * Menu is rendered via portal to escape overflow-hidden ancestors.
  */
 
 export function Dropdown({ trigger, options, onSelect, className }: DropdownProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleTriggerClick = () => {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    }
+    setOpen((v) => !v);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -37,7 +49,11 @@ export function Dropdown({ trigger, options, onSelect, className }: DropdownProp
     }
 
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const clickedInsideTrigger = triggerRef.current?.contains(target);
+      const clickedInsideMenu = menuRef.current?.contains(target);
+
+      if (!clickedInsideTrigger && !clickedInsideMenu) {
         setOpen(false);
       }
     };
@@ -58,24 +74,30 @@ export function Dropdown({ trigger, options, onSelect, className }: DropdownProp
   }, [open]);
 
   return (
-    <div ref={ref} className={cn(dropdownRootStyles(), className)}>
-      <div onClick={() => setOpen((v) => !v)}>{trigger}</div>
-      {open && (
-        <div className={dropdownMenuStyles()}>
-          {options.map((opt) => (
-            <button
-              key={opt.value}
-              className={dropdownOptionStyles()}
-              onClick={() => {
-                onSelect(opt.value);
-                setOpen(false);
-              }}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
+    <div ref={triggerRef} className={cn(dropdownRootStyles(), className)}>
+      <div onClick={handleTriggerClick}>{trigger}</div>
+      {open &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className={dropdownMenuStyles()}
+            style={{ top: menuPos.top, right: menuPos.right }}
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                className={dropdownOptionStyles()}
+                onClick={() => {
+                  onSelect(opt.value);
+                  setOpen(false);
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

@@ -1,43 +1,85 @@
-import { type ButtonHTMLAttributes, forwardRef } from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
-const checkboxButtonVariants = cva(
-  'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50',
+const checkboxStyles = cva(
+  'inline-flex h-4 w-4 items-center justify-center rounded border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
-      variant: {
-        primary: 'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800',
-        ghost: 'text-slate-600 hover:bg-slate-100 active:bg-slate-200',
-        danger: 'text-red-600 hover:bg-red-50 active:bg-red-100',
-      },
-      size: {
-        sm: 'gap-1.5 px-3 py-1.5 text-sm',
-        md: 'gap-2 px-4 py-2 text-sm',
+      state: {
+        unchecked:
+          'border-slate-300 bg-white text-transparent hover:border-indigo-400 hover:bg-indigo-50',
+        checked: 'border-indigo-500 bg-indigo-500 text-white',
+        indeterminate: 'border-indigo-500 bg-indigo-500 text-white',
       },
     },
     defaultVariants: {
-      variant: 'ghost',
-      size: 'md',
+      state: 'unchecked',
     },
   }
 );
 
-interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof checkboxButtonVariants> {}
+interface CheckboxProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'onChange' | 'aria-checked'
+> {
+  checked?: boolean;
+  indeterminate?: boolean;
+  onChange?: () => void;
+}
 
-/** Reusable button primitive. Variants: primary, ghost, danger. */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'ghost', size = 'md', className, children, ...props }, ref) => {
+export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
+  (
+    { checked = false, indeterminate = false, onChange, onClick, className, disabled, ...props },
+    ref
+  ) => {
+    const state = indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked';
+    const ariaChecked: boolean | 'mixed' = indeterminate ? 'mixed' : checked;
+
     return (
       <button
+        type="button"
         ref={ref}
-        className={cn(checkboxButtonVariants({ variant, size }), className)}
+        role="checkbox"
+        aria-checked={ariaChecked}
+        disabled={disabled}
+        className={cn(checkboxStyles({ state }), className)}
+        onClick={(event) => {
+          onClick?.(event);
+
+          if (!event.defaultPrevented && !disabled) {
+            onChange?.();
+          }
+        }}
         {...props}
       >
-        {children}
+        {state === 'checked' && (
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <polyline points="1,5 4,8 9,2" />
+          </svg>
+        )}
+
+        {state === 'indeterminate' && (
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <line x1="2" y1="5" x2="8" y2="5" />
+          </svg>
+        )}
       </button>
     );
   }
 );
-Button.displayName = 'Button';
+Checkbox.displayName = 'Checkbox';

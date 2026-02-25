@@ -1,16 +1,68 @@
-# React + Vite
+# Recman Test
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## System Requirements
 
-Currently, two official plugins are available:
+- **Node.js** 22+ and **npm** (or **yarn**/**pnpm**)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Installation
 
-## React Compiler
+```bash
+npm install
+```
+or
+```bash
+yarn install
+```
+or
+```bash
+pnpm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Development
 
-## Expanding the ESLint configuration
+Start the development server with hot module reloading:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` (or the next available port).
+
+## Testing
+
+Run tests once:
+
+```bash
+npm run test
+```
+
+## Linting
+
+Check for code style and TypeScript errors:
+
+```bash
+npm run lint
+```
+
+## Building
+
+Create a production-optimized build:
+
+```bash
+npm run build
+```
+
+Output will be in the `dist/` directory.
+
+## Project Structure
+
+```
+src/
+├── components/       # React components (UI library, dialogs, etc.)
+├── lib/              # Utilities (helpers, constants, localStorage, etc.)
+├── store/            # State management (React Context + Reducer pattern)
+├── types/            # TypeScript type definitions
+├── App.tsx           # Main app component
+├── main.tsx          # Entry point
+└── index.css         # Global styles
+```

@@ -97,7 +97,6 @@ export function Tooltip({
         ? 'translateX(-50%)'
         : '';
 
-
   return (
     <div
       ref={ref}
